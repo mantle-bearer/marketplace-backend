@@ -14,7 +14,11 @@ class PaymentAdmin(admin.ModelAdmin):
         "provider_reference",
         "created_at",
     )
-    list_select_related = ("subscription", "subscription__customer", "subscription__plan")
+    list_select_related = (
+        "subscription",
+        "subscription__customer",
+        "subscription__plan",
+    )
     list_filter = (
         "status",
         "currency",
@@ -38,4 +42,10 @@ class WebhookEventLogAdmin(admin.ModelAdmin):
     list_filter = ("event", "processed_at")
     search_fields = ("reference", "provider_reference")
     ordering = ("-processed_at",)
-    readonly_fields = ("reference", "event", "provider_reference", "payload", "processed_at")
+    readonly_fields = (
+        "reference",
+        "event",
+        "provider_reference",
+        "payload",
+        "processed_at",
+    )

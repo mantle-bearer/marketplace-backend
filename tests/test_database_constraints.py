@@ -110,7 +110,8 @@ class DatabaseConstraintIntegrityTests(TransactionTestCase):
                 plan=self.plan,
                 status=SubscriptionStatus.ACTIVE,
                 start_date=timezone.now(),
-                end_date=timezone.now() - timedelta(days=5),  # end_date before start_date
+                end_date=timezone.now()
+                - timedelta(days=5),  # end_date before start_date
             )
 
     def test_payment_amount_non_negative_constraint(self):

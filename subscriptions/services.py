@@ -16,7 +16,7 @@ class SubscriptionService:
     def create_subscription(*, customer, plan_id):
         """
         Atomically creates a subscription in PENDING state along with a Payment record.
-        
+
         Concurrency and integrity protections:
         - Acquires row-level lock on Plan (select_for_update) to guarantee active status is checked atomically.
         - Prevents duplicate active subscriptions for the same customer and plan.
@@ -29,27 +29,41 @@ class SubscriptionService:
                 raise ValidationError({"plan_id": "Plan not found."})
 
             if not plan.is_active:
-                raise ValidationError({"plan_id": "Inactive plans cannot receive new subscriptions."})
+                raise ValidationError(
+                    {"plan_id": "Inactive plans cannot receive new subscriptions."}
+                )
 
-            existing_active = Subscription.objects.select_for_update().filter(
-                customer=customer,
-                plan=plan,
-                status=SubscriptionStatus.ACTIVE,
-            ).first()
+            existing_active = (
+                Subscription.objects.select_for_update()
+                .filter(
+                    customer=customer,
+                    plan=plan,
+                    status=SubscriptionStatus.ACTIVE,
+                )
+                .first()
+            )
 
             if existing_active:
-                raise ValidationError({
-                    "plan_id": "A customer must not have two active subscriptions to the same plan."
-                })
+                raise ValidationError(
+                    {
+                        "plan_id": "A customer must not have two active subscriptions to the same plan."
+                    }
+                )
 
-            existing_pending = Subscription.objects.select_for_update().filter(
-                customer=customer,
-                plan=plan,
-                status=SubscriptionStatus.PENDING,
-            ).first()
+            existing_pending = (
+                Subscription.objects.select_for_update()
+                .filter(
+                    customer=customer,
+                    plan=plan,
+                    status=SubscriptionStatus.PENDING,
+                )
+                .first()
+            )
 
             if existing_pending:
-                payment = existing_pending.payments.filter(status=PaymentStatus.PENDING).first()
+                payment = existing_pending.payments.filter(
+                    status=PaymentStatus.PENDING
+                ).first()
                 if payment:
                     return existing_pending, payment
 
@@ -72,9 +86,11 @@ class SubscriptionService:
                     pay = existing.payments.filter(status=PaymentStatus.PENDING).first()
                     if pay:
                         return existing, pay
-                raise ValidationError({
-                    "plan_id": "A customer must not have two active or pending subscriptions to the same plan."
-                })
+                raise ValidationError(
+                    {
+                        "plan_id": "A customer must not have two active or pending subscriptions to the same plan."
+                    }
+                )
 
             payment = Payment.objects.create(
                 subscription=subscription,
@@ -101,7 +117,9 @@ class SubscriptionService:
                 return sub
 
             if sub.status == SubscriptionStatus.EXPIRED:
-                raise ValidationError({"detail": "Cannot cancel an already expired subscription."})
+                raise ValidationError(
+                    {"detail": "Cannot cancel an already expired subscription."}
+                )
 
             sub.status = SubscriptionStatus.CANCELLED
             sub.updated_at = timezone.now()

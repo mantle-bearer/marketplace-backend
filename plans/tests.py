@@ -72,7 +72,9 @@ class PlanAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         self.client.force_authenticate(user=self.provider1)
-        response = self.client.patch(detail_url, {"name": "Updated Name"}, format="json")
+        response = self.client.patch(
+            detail_url, {"name": "Updated Name"}, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "Updated Name")
 

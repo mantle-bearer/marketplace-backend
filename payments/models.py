@@ -54,7 +54,9 @@ class Payment(models.Model):
         indexes = [
             models.Index(fields=["subscription", "status"], name="pay_sub_status_idx"),
             models.Index(fields=["reference"], name="pay_reference_idx"),
-            models.Index(fields=["status", "created_at"], name="pay_status_created_idx"),
+            models.Index(
+                fields=["status", "created_at"], name="pay_status_created_idx"
+            ),
         ]
         constraints = [
             models.CheckConstraint(
@@ -68,7 +70,9 @@ class Payment(models.Model):
         ]
 
     def __str__(self):
-        return f"Payment {self.reference} ({self.amount} {self.currency}) - {self.status}"
+        return (
+            f"Payment {self.reference} ({self.amount} {self.currency}) - {self.status}"
+        )
 
 
 class WebhookEventLog(models.Model):

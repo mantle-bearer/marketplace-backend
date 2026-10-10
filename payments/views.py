@@ -15,7 +15,7 @@ class PaymentWebhookView(APIView):
     """
     POST /api/payments/webhook/
     Webhook endpoint receiving payment outcome notifications from the payment gateway.
-    
+
     Guarantees:
     - Concurrency-safe via row-level locks on Payment.
     - Idempotent: repeated processing returns 200 OK without duplicate side-effects.
@@ -30,14 +30,18 @@ class PaymentWebhookView(APIView):
         description="Receives payment success or failure notifications from the payment provider.",
         request=PaymentWebhookPayloadSerializer,
         responses={
-            200: OpenApiResponse(description="Webhook processed successfully or duplicate acknowledged"),
+            200: OpenApiResponse(
+                description="Webhook processed successfully or duplicate acknowledged"
+            ),
             400: OpenApiResponse(description="Invalid payload or amount mismatch"),
             404: OpenApiResponse(description="Payment reference not found"),
         },
     )
     def post(self, request, *args, **kwargs):
         signature_header = request.headers.get("X-Webhook-Signature", "")
-        if signature_header and not PaymentWebhookService.verify_signature(request.body, signature_header):
+        if signature_header and not PaymentWebhookService.verify_signature(
+            request.body, signature_header
+        ):
             return Response(
                 {"detail": "Invalid webhook signature."},
                 status=status.HTTP_400_BAD_REQUEST,

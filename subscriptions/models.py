@@ -79,4 +79,6 @@ class Subscription(models.Model):
     def __str__(self):
         customer_email = getattr(self.customer, "email", "")
         plan_name = getattr(self.plan, "name", "")
-        return f"Subscription #{self.id} - {customer_email} -> {plan_name} ({self.status})"
+        return (
+            f"Subscription #{self.id} - {customer_email} -> {plan_name} ({self.status})"
+        )

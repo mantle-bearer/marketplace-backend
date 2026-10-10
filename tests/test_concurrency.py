@@ -66,8 +66,12 @@ class ConcurrencyAndIntegrityTests(TransactionTestCase):
             f1.result()
             f2.result()
 
-        total_subs = Subscription.objects.filter(customer=self.customer, plan=self.plan).count()
-        self.assertEqual(total_subs, 1, "Exactly one subscription should exist in database.")
+        total_subs = Subscription.objects.filter(
+            customer=self.customer, plan=self.plan
+        ).count()
+        self.assertEqual(
+            total_subs, 1, "Exactly one subscription should exist in database."
+        )
 
     @patch("payments.tasks.send_payment_notification_email_task.delay")
     def test_concurrent_webhook_processing_and_idempotency(self, mock_email_delay):
@@ -103,6 +107,7 @@ class ConcurrencyAndIntegrityTests(TransactionTestCase):
         def worker_process():
             connection.close()
             import time
+
             for _ in range(10):
                 try:
                     res = PaymentWebhookService.process_webhook(data=webhook_data)

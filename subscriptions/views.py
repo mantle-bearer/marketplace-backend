@@ -61,7 +61,9 @@ class SubscriptionListCreateView(generics.ListCreateAPIView):
         request=SubscriptionCreateSerializer,
         responses={
             201: SubscriptionCreateResponseSerializer,
-            400: OpenApiResponse(description="Validation error or duplicate active subscription"),
+            400: OpenApiResponse(
+                description="Validation error or duplicate active subscription"
+            ),
         },
     )
     def create(self, request, *args, **kwargs):
@@ -116,9 +118,13 @@ class SubscriptionCancelView(APIView):
     )
     def post(self, request, pk=None):
         try:
-            subscription = Subscription.objects.select_related("customer", "plan").get(pk=pk)
+            subscription = Subscription.objects.select_related("customer", "plan").get(
+                pk=pk
+            )
         except Subscription.DoesNotExist:
-            return Response({"detail": "Subscription not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Subscription not found."}, status=status.HTTP_404_NOT_FOUND
+            )
 
         self.check_object_permissions(request, subscription)
 

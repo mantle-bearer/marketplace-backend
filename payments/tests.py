@@ -66,7 +66,9 @@ class PaymentWebhookAPITests(APITestCase):
         self.assertIsNotNone(self.subscription.start_date)
         self.assertIsNotNone(self.subscription.end_date)
         self.assertIsNotNone(self.subscription.next_billing_date)
-        self.assertEqual(self.subscription.end_date, self.subscription.next_billing_date)
+        self.assertEqual(
+            self.subscription.end_date, self.subscription.next_billing_date
+        )
 
         mock_email_delay.assert_called_once()
 

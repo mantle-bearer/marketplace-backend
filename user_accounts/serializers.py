@@ -33,7 +33,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "email", "password", "full_name", "username", "role", "created_at")
+        fields = (
+            "id",
+            "email",
+            "password",
+            "full_name",
+            "username",
+            "role",
+            "created_at",
+        )
         read_only_fields = ("id", "created_at")
 
     def validate_email(self, value):
@@ -44,9 +52,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def validate_role(self, value):
         if value == Role.ADMIN:
-            raise serializers.ValidationError("Admin accounts cannot be registered via this endpoint.")
+            raise serializers.ValidationError(
+                "Admin accounts cannot be registered via this endpoint."
+            )
         if value not in [Role.CUSTOMER, Role.PROVIDER]:
-            raise serializers.ValidationError("Invalid role. Must be 'customer' or 'provider'.")
+            raise serializers.ValidationError(
+                "Invalid role. Must be 'customer' or 'provider'."
+            )
         return value
 
     def create(self, validated_data):

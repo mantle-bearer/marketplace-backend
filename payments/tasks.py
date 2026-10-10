@@ -45,7 +45,9 @@ def send_payment_notification_email_task(
         send_mail(
             subject=subject,
             message=message,
-            from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@marketplace.com"),
+            from_email=getattr(
+                settings, "DEFAULT_FROM_EMAIL", "noreply@marketplace.com"
+            ),
             recipient_list=[customer_email],
             fail_silently=False,
         )

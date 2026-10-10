@@ -26,7 +26,9 @@ def expire_subscriptions_task(self):
 
     try:
         with transaction.atomic():
-            expired_candidates = Subscription.objects.select_for_update(skip_locked=True).filter(
+            expired_candidates = Subscription.objects.select_for_update(
+                skip_locked=True
+            ).filter(
                 status=SubscriptionStatus.ACTIVE,
                 end_date__lte=now,
             )

@@ -19,7 +19,11 @@ class PlanListCreateView(generics.ListCreateAPIView):
     """
 
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsProviderUser]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     filterset_fields = ["billing_interval", "is_active", "provider"]
     search_fields = ["name", "description"]
     ordering_fields = ["price", "created_at"]
@@ -37,7 +41,11 @@ class PlanListCreateView(generics.ListCreateAPIView):
 
         if user.is_authenticated and (user.is_staff or user.role == "admin"):
             return qs.all()
-        if user.is_authenticated and user.role == "provider" and self.request.query_params.get("my_plans"):
+        if (
+            user.is_authenticated
+            and user.role == "provider"
+            and self.request.query_params.get("my_plans")
+        ):
             return qs.filter(provider=user)
 
         return qs.filter(is_active=True)

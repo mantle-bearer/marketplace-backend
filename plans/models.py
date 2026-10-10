@@ -45,7 +45,9 @@ class Plan(models.Model):
             models.Index(fields=["is_active"], name="plan_is_active_idx"),
             models.Index(fields=["billing_interval"], name="plan_interval_idx"),
             models.Index(fields=["created_at"], name="plan_created_at_idx"),
-            models.Index(fields=["is_active", "created_at"], name="plan_active_created_idx"),
+            models.Index(
+                fields=["is_active", "created_at"], name="plan_active_created_idx"
+            ),
         ]
         constraints = [
             models.CheckConstraint(
@@ -60,4 +62,6 @@ class Plan(models.Model):
 
     def __str__(self):
         provider_email = getattr(self.provider, "email", "")
-        return f"{self.name} (${self.price}/{self.billing_interval}) by {provider_email}"
+        return (
+            f"{self.name} (${self.price}/{self.billing_interval}) by {provider_email}"
+        )

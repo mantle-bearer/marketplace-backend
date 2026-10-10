@@ -38,7 +38,7 @@ class PaymentWebhookService:
     def process_webhook(cls, *, data: dict) -> dict:
         """
         Processes payment webhook with strong concurrency and idempotency guarantees.
-        
+
         Guarantees:
         - Row-level lock on Payment via select_for_update() serializes concurrent deliveries.
         - If payment is already in terminal state (SUCCESS / FAILED), idempotently acknowledges without duplicate side effects.
@@ -52,37 +52,44 @@ class PaymentWebhookService:
         raw_amount = data.get("amount")
 
         if not event or not reference or raw_amount is None:
-            raise ValidationError({
-                "detail": "Missing required webhook fields: 'event', 'reference', and 'amount' are mandatory."
-            })
+            raise ValidationError(
+                {
+                    "detail": "Missing required webhook fields: 'event', 'reference', and 'amount' are mandatory."
+                }
+            )
 
         try:
             amount = Decimal(str(raw_amount))
-        except (InvalidOperation, TypeError):
+        except InvalidOperation, TypeError:
             raise ValidationError({"amount": "Invalid amount format."})
 
         with transaction.atomic():
             payment = (
                 Payment.objects.select_for_update()
-                .select_related("subscription", "subscription__plan", "subscription__customer")
+                .select_related(
+                    "subscription", "subscription__plan", "subscription__customer"
+                )
                 .filter(reference=reference)
                 .first()
             )
 
             if not payment:
-                raise ValidationError({"reference": f"Payment with reference '{reference}' not found."})
+                raise ValidationError(
+                    {"reference": f"Payment with reference '{reference}' not found."}
+                )
 
             if payment.amount != amount:
                 logger.warning(
                     f"Webhook amount mismatch for {reference}: received {amount}, expected {payment.amount}"
                 )
-                raise ValidationError({
-                    "amount": f"Amount mismatch: received {amount}, expected {payment.amount}"
-                })
+                raise ValidationError(
+                    {
+                        "amount": f"Amount mismatch: received {amount}, expected {payment.amount}"
+                    }
+                )
 
             clean_payload = {
-                k: str(v) if isinstance(v, Decimal) else v
-                for k, v in data.items()
+                k: str(v) if isinstance(v, Decimal) else v for k, v in data.items()
             }
             WebhookEventLog.objects.create(
                 reference=reference,
@@ -109,7 +116,9 @@ class PaymentWebhookService:
                 payment.status = PaymentStatus.SUCCESS
                 payment.provider_reference = provider_reference
                 payment.updated_at = timezone.now()
-                payment.save(update_fields=["status", "provider_reference", "updated_at"])
+                payment.save(
+                    update_fields=["status", "provider_reference", "updated_at"]
+                )
 
                 sub = Subscription.objects.select_for_update().get(id=subscription.id)
                 now = timezone.now()
@@ -162,7 +171,9 @@ class PaymentWebhookService:
                 payment.status = PaymentStatus.FAILED
                 payment.provider_reference = provider_reference
                 payment.updated_at = timezone.now()
-                payment.save(update_fields=["status", "provider_reference", "updated_at"])
+                payment.save(
+                    update_fields=["status", "provider_reference", "updated_at"]
+                )
 
                 logger.info(f"Marked payment {reference} as FAILED.")
                 return {
@@ -173,4 +184,6 @@ class PaymentWebhookService:
                 }
 
             else:
-                raise ValidationError({"event": f"Unsupported webhook event type: '{event}'."})
+                raise ValidationError(
+                    {"event": f"Unsupported webhook event type: '{event}'."}
+                )

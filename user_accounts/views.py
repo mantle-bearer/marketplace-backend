@@ -25,8 +25,12 @@ class RegisterView(generics.CreateAPIView):
         summary="Register a new user",
         description="Creates a new customer or provider account. Admin accounts cannot be created here.",
         responses={
-            201: OpenApiResponse(description="User registered successfully with JWT tokens"),
-            400: OpenApiResponse(description="Validation error (e.g. duplicate email, invalid role)"),
+            201: OpenApiResponse(
+                description="User registered successfully with JWT tokens"
+            ),
+            400: OpenApiResponse(
+                description="Validation error (e.g. duplicate email, invalid role)"
+            ),
         },
     )
     def create(self, request, *args, **kwargs):
@@ -66,11 +70,15 @@ class LoginView(generics.GenericAPIView):
         description="Authenticate with email and password to receive JWT tokens.",
         responses={
             200: OpenApiResponse(description="Login successful"),
-            400: OpenApiResponse(description="Invalid credentials or deactivated account"),
+            400: OpenApiResponse(
+                description="Invalid credentials or deactivated account"
+            ),
         },
     )
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, context={"request": request})
+        serializer = self.get_serializer(
+            data=request.data, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         user_data = UserSerializer(data["user"]).data

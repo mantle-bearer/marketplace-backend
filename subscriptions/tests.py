@@ -144,7 +144,9 @@ class SubscriptionAPITests(APITestCase):
             Subscription.objects.create(
                 customer=self.customer,
                 plan=plan,
-                status=SubscriptionStatus.ACTIVE if i % 2 == 0 else SubscriptionStatus.CANCELLED,
+                status=SubscriptionStatus.ACTIVE
+                if i % 2 == 0
+                else SubscriptionStatus.CANCELLED,
             )
 
         self.client.force_authenticate(user=self.customer)
